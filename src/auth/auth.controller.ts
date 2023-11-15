@@ -46,14 +46,14 @@ export class AuthController {
     @Body() signInDto: SignInDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const { accessToken, refreshToken, expiresToken } =
+    const { accessToken, refreshToken, expiresToken, expiresRefreshToken } =
       await this.authService.signIn(signInDto);
 
     // for testing only. you can set refresh token cookie in frontend
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: true,
-      expires: new Date(expiresToken),
+      expires: new Date(expiresRefreshToken),
     });
     // end of set refresh token cookie
 

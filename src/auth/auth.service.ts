@@ -23,6 +23,7 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
     expiresToken: number;
+    expiresRefreshToken: number;
   }> {
     const tokenExpiresIn: string = this.configService.getOrThrow(
       'auth.expires',
@@ -31,6 +32,14 @@ export class AuthService {
       },
     );
     const tokenExpires = Date.now() + ms(tokenExpiresIn);
+
+    const refreshTokenExpiresIn: string = this.configService.getOrThrow(
+      'auth.refreshExpires',
+      {
+        infer: true,
+      },
+    );
+    const refreshTokenExpires = Date.now() + ms(refreshTokenExpiresIn);
 
     const user = await this.authRepository.validateUser(signInDto);
     if (!user) throw new UnauthorizedException('Invalid username or password');
@@ -55,9 +64,7 @@ export class AuthService {
           secret: this.configService.getOrThrow('auth.refreshSecret', {
             infer: true,
           }),
-          expiresIn: this.configService.getOrThrow('auth.refreshExpires', {
-            infer: true,
-          }),
+          expiresIn: refreshTokenExpiresIn,
         },
       ),
     ]);
@@ -65,7 +72,12 @@ export class AuthService {
     // Store refresh token in Redis
     await this.refreshTokenStorage.insert(user.id, refreshToken);
 
-    return { accessToken, refreshToken, expiresToken: tokenExpires };
+    return {
+      accessToken,
+      refreshToken,
+      expiresToken: tokenExpires,
+      expiresRefreshToken: refreshTokenExpires,
+    };
   }
 
   async refreshAccessToken(
