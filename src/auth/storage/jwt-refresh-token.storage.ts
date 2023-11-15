@@ -33,18 +33,14 @@ export class JwtRefreshTokenStorage
   }
 
   async insert(userId: string, tokenId: string): Promise<void> {
-    const refreshTokenExpiresIn = this.configService.getOrThrow(
-      'auth.refreshExpires',
-      {
+    const seconds = ms(
+      this.configService.getOrThrow('auth.refreshExpires', {
         infer: true,
-      },
+      }),
     );
 
     await this.redisClient.set(this.getKey(userId), tokenId);
-    await this.redisClient.expire(
-      this.getKey(userId),
-      (ms(refreshTokenExpiresIn) / 1000) as number,
-    );
+    await this.redisClient.expire(this.getKey(userId), Number(seconds) / 1000);
   }
 
   async validate(userId: string, tokenId: string): Promise<boolean> {
