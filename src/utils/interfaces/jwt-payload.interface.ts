@@ -1,5 +1,5 @@
 export interface IJwtPayload {
-  sub: string;
+  id: string;
   username: string;
   auth_origin: string;
 }

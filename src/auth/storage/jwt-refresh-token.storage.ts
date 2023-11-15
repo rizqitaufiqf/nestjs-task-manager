@@ -6,7 +6,7 @@ import {
 import Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
-import { IEnvironmentVariables } from '../../utils/interfaces/env.interface';
+import { AllConfigType } from '../../config/config.type';
 
 export class InvalidateRefreshTokenError extends Error {}
 
@@ -18,12 +18,12 @@ export class JwtRefreshTokenStorage
 {
   private redisClient: Redis;
 
-  constructor(private configService: ConfigService<IEnvironmentVariables>) {}
+  constructor(private configService: ConfigService<AllConfigType>) {}
 
   onApplicationBootstrap(): any {
     this.redisClient = new Redis({
-      host: this.configService.getOrThrow('REDIS_HOST', { infer: true }),
-      port: this.configService.getOrThrow('REDIS_PORT', { infer: true }),
+      host: this.configService.getOrThrow('redis.host', { infer: true }),
+      port: this.configService.getOrThrow('redis.port', { infer: true }),
     });
   }
 
@@ -37,7 +37,7 @@ export class JwtRefreshTokenStorage
     await this.redisClient.expire(
       this.getKey(userId),
       ms(
-        this.configService.getOrThrow('AUTH_JWT_REFRESH_EXPIRES_IN', {
+        this.configService.getOrThrow('auth.refreshExpires', {
           infer: true,
         }),
       ),
@@ -60,7 +60,7 @@ export class JwtRefreshTokenStorage
       this.getKey(userId),
     );
     const seconds: string = ms(
-      this.configService.getOrThrow('AUTH_JWT_EXPIRES_IN', { infer: true }),
+      this.configService.getOrThrow('auth.expires', { infer: true }),
     );
     await this.redisClient.expire(
       this.getKeyBlacklist(tokenId),
@@ -68,10 +68,11 @@ export class JwtRefreshTokenStorage
     );
   }
 
-  async validateBlacklist(userId: string, tokenId: string): Promise<boolean> {
+  async validateBlacklist(tokenId: string): Promise<boolean> {
     const storedUser = await this.redisClient.get(
       this.getKeyBlacklist(tokenId),
     );
+
     return !!storedUser;
   }
 

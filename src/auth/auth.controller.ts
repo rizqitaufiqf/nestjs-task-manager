@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Headers,
   HttpCode,
   HttpStatus,
   Post,
@@ -21,14 +20,15 @@ import { JwtRefreshTokenGuard } from './guards/jwt-refresh-token.guard';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
-import { IEnvironmentVariables } from '../utils/interfaces/env.interface';
+import { AllConfigType } from '../config/config.type';
+import { GetAuthorization } from '../utils/decorators/params/get-authorization.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
-    private configService: ConfigService<IEnvironmentVariables>,
+    private configService: ConfigService<AllConfigType>,
   ) {}
 
   @Public()
@@ -46,16 +46,16 @@ export class AuthController {
     @Body() signInDto: SignInDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    // return await this.authService.signIn(signInDto);
     const { accessToken, refreshToken, expiresToken } =
       await this.authService.signIn(signInDto);
 
-    // for testing only. you can set refresh token in frontend
+    // for testing only. you can set refresh token cookie in frontend
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: true,
       expires: new Date(expiresToken),
     });
+    // end of set refresh token cookie
 
     return { accessToken, refreshToken, expiresToken };
   }
@@ -73,10 +73,9 @@ export class AuthController {
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)
   async signOut(
-    @Headers('authorization') authorization: string,
+    @GetAuthorization() authorization: string,
   ): Promise<{ message: string }> {
-    const token = authorization.split(' ')[1];
-    await this.authService.signOut(token);
+    await this.authService.signOut(authorization);
     return { message: 'logout successfully' };
   }
 }

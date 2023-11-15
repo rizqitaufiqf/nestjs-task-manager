@@ -8,6 +8,7 @@ import { UsersRepository } from '../../users/users.repository';
 import { Request } from 'express';
 import { NullableType } from '../../utils/types/nullable.type';
 import { IJwtRefreshPayload } from '../../utils/interfaces/jwt-refresh-payload.interface';
+import { AllConfigType } from '../../config/config.type';
 
 @Injectable()
 export class JwtRefreshTokenStrategy extends PassportStrategy(
@@ -16,19 +17,20 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
 ) {
   constructor(
     @InjectRepository(UsersRepository) private userRepository: UsersRepository,
-    private configService: ConfigService,
+    private configService: ConfigService<AllConfigType>,
   ) {
     super({
       jwtFromRequest: cookieExtractor,
       ignoreExpiration: false,
-      secretOrKey: configService.getOrThrow('AUTH_JWT_REFRESH_SECRET', {
+      secretOrKey: configService.getOrThrow('auth.refreshSecret', {
         infer: true,
       }),
     });
   }
 
   async validate(payload: IJwtRefreshPayload): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id: payload.id });
+    const { username, id } = payload;
+    const user = await this.userRepository.findOneBy({ id, username });
     if (!user) throw new UnauthorizedException('Invalid refresh token');
     return user;
   }

@@ -3,16 +3,19 @@ import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
-import { IEnvironmentVariables } from './utils/interfaces/env.interface';
+import { AllConfigType } from './config/config.type';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-  const configService = app.get(ConfigService<IEnvironmentVariables>);
+  const configService = app.get(ConfigService<AllConfigType>);
 
   app.enableShutdownHooks();
-  app.setGlobalPrefix(configService.getOrThrow('API_PREFIX', { infer: true }), {
-    exclude: ['/'],
-  });
+  app.setGlobalPrefix(
+    configService.getOrThrow('app.apiPrefix', { infer: true }),
+    {
+      exclude: ['/'],
+    },
+  );
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -24,7 +27,7 @@ async function bootstrap() {
     https://stackoverflow.com/questions/65545893/nest-js-exclude-decorator-not-working-in-the-post-methods
    */
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  const port = configService.getOrThrow('APP_PORT', { infer: true });
+  const port = configService.getOrThrow('app.port', { infer: true });
   await app.listen(port);
 }
 
