@@ -15,14 +15,20 @@ import { UsersService } from '../users/users.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { User } from '../users/entities/user.entity';
-import { Public } from '../utils/decorators/public.decorator';
+import { Public } from '../utils/decorators/functions/public.decorator';
 import { JwtRefreshTokenGuard } from './guards/jwt-refresh-token.guard';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { AllConfigType } from '../config/config.type';
 import { GetAuthorization } from '../utils/decorators/params/get-authorization.decorator';
+import { ApiTags } from '@nestjs/swagger';
+import { SignUpSwaggerDecorator } from './decorators/functions/swagger/sign-up.decorator';
+import { SignInSwaggerDecorator } from './decorators/functions/swagger/sign-in.decorator';
+import { RefreshTokenSwaggerDecorator } from './decorators/functions/swagger/refresh-token.decorator';
+import { SignOutSwaggerDecorator } from './decorators/functions/swagger/sign-out.decorator';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -31,6 +37,7 @@ export class AuthController {
     private configService: ConfigService<AllConfigType>,
   ) {}
 
+  @SignUpSwaggerDecorator()
   @Public()
   @Post('sign-up')
   @HttpCode(HttpStatus.CREATED)
@@ -39,6 +46,7 @@ export class AuthController {
     return this.userService.createUser(signUpDto);
   }
 
+  @SignInSwaggerDecorator()
   @Public()
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
@@ -49,17 +57,18 @@ export class AuthController {
     const { accessToken, refreshToken, expiresToken, expiresRefreshToken } =
       await this.authService.signIn(signInDto);
 
-    // for testing only. you can set refresh token cookie in frontend
+    /* for testing only. you can set refresh token cookie in frontend
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: true,
       expires: new Date(expiresRefreshToken),
     });
-    // end of set refresh token cookie
+    end of set refresh token cookie */
 
     return { accessToken, refreshToken, expiresToken };
   }
 
+  @RefreshTokenSwaggerDecorator()
   @UseGuards(JwtRefreshTokenGuard)
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
@@ -69,6 +78,7 @@ export class AuthController {
     });
   }
 
+  @SignOutSwaggerDecorator()
   @UseGuards(JwtAuthGuard)
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)

@@ -70,6 +70,12 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
+## Swagger
+
+```
+localhost:3000/docs
+```
+
 ## Test
 
 ```bash
