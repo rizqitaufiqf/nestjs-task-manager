@@ -72,9 +72,13 @@ export class AuthController {
   @UseGuards(JwtRefreshTokenGuard)
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(@Req() req: Request): Promise<{ accessToken: string }> {
+  async refreshToken(
+    @Req() req: Request,
+    @GetAuthorization() authorization: string,
+  ): Promise<{ accessToken: string }> {
     return this.authService.refreshAccessToken({
       refreshToken: req.cookies.refreshToken ?? '',
+      accessToken: authorization,
     });
   }
 

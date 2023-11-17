@@ -92,13 +92,17 @@ export class AuthService {
     const tokenExpires = Date.now() + ms(tokenExpiresIn);
 
     try {
-      const { refreshToken } = refreshTokenDto;
+      const { refreshToken, accessToken: oldAccessToken } = refreshTokenDto;
       const decoded = await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.getOrThrow('auth.refreshSecret', {
           infer: true,
         }),
       });
       await this.refreshTokenStorage.validate(decoded.id, refreshToken);
+      await this.refreshTokenStorage.insertBlacklist(
+        decoded.id,
+        oldAccessToken,
+      );
 
       const payload: IJwtPayload = {
         id: decoded.id,
