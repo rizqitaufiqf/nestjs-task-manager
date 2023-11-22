@@ -1,7 +1,8 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as process from 'process';
-import { join } from 'path';
+import { config } from 'dotenv';
 
+config();
 const env: NodeJS.ProcessEnv = process.env;
 
 export const AppDataSource: DataSource = new DataSource({
@@ -15,8 +16,8 @@ export const AppDataSource: DataSource = new DataSource({
   synchronize: env.DATABASE_SYNCHRONIZE === 'true',
   dropSchema: false,
   logging: env.NODE_ENV !== 'production',
-  entities: [join(__dirname, '/../**/**.entity{.ts,.js}')],
-  migrations: [join(__dirname, '/migrations/**/*{.ts,.js}')],
+  entities: [__dirname + '/../**/**.entity{.ts,.js}'],
+  migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   cli: {
     entitiesDir: 'src',
     migrationsDir: 'src/database/migrations',
