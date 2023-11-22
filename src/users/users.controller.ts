@@ -13,7 +13,10 @@ import { ApiTags } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 
 @ApiTags('User')
-@Controller('users')
+@Controller({
+  path: 'users',
+  version: '1',
+})
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 

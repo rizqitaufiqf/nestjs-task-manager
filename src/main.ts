@@ -1,6 +1,10 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 import { AllConfigType } from './config/config.type';
@@ -17,6 +21,7 @@ async function bootstrap() {
       exclude: ['/'],
     },
   );
+  app.enableVersioning({ type: VersioningType.URI });
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({

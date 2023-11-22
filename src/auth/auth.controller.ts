@@ -29,7 +29,10 @@ import { RefreshTokenSwaggerDecorator } from './decorators/functions/swagger/ref
 import { SignOutSwaggerDecorator } from './decorators/functions/swagger/sign-out.decorator';
 
 @ApiTags('Auth')
-@Controller('auth')
+@Controller({
+  path: 'auth',
+  version: '1',
+})
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
