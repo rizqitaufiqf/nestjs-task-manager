@@ -70,6 +70,28 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
+## Swagger
+
+```
+localhost:3000/docs
+```
+
+## Migrations
+```bash
+# generate migrations
+$ pnpm migration:generate src/database/migrations/<name-of-migration>
+
+# create custom migration
+$ pnpm migration:create src/database/migrations/<name-of-migration>
+
+# run migrations
+$ pnpm migration:run
+
+# revert migrations
+$ pnpm migration:revert
+
+```
+
 ## Test
 
 ```bash

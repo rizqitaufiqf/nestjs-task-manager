@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Headers,
   HttpCode,
   HttpStatus,
   Post,
@@ -16,21 +15,32 @@ import { UsersService } from '../users/users.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { User } from '../users/entities/user.entity';
-import { Public } from '../utils/decorators/public.decorator';
+import { Public } from '../utils/decorators/functions/public.decorator';
 import { JwtRefreshTokenGuard } from './guards/jwt-refresh-token.guard';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
-import { IEnvironmentVariables } from '../utils/interfaces/env.interface';
+import { AllConfigType } from '../config/config.type';
+import { GetAuthorization } from '../utils/decorators/params/get-authorization.decorator';
+import { ApiTags } from '@nestjs/swagger';
+import { SignUpSwaggerDecorator } from './decorators/functions/swagger/sign-up.decorator';
+import { SignInSwaggerDecorator } from './decorators/functions/swagger/sign-in.decorator';
+import { RefreshTokenSwaggerDecorator } from './decorators/functions/swagger/refresh-token.decorator';
+import { SignOutSwaggerDecorator } from './decorators/functions/swagger/sign-out.decorator';
 
-@Controller('auth')
+@ApiTags('Auth')
+@Controller({
+  path: 'auth',
+  version: '1',
+})
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
-    private configService: ConfigService<IEnvironmentVariables>,
+    private configService: ConfigService<AllConfigType>,
   ) {}
 
+  @SignUpSwaggerDecorator()
   @Public()
   @Post('sign-up')
   @HttpCode(HttpStatus.CREATED)
@@ -39,6 +49,7 @@ export class AuthController {
     return this.userService.createUser(signUpDto);
   }
 
+  @SignInSwaggerDecorator()
   @Public()
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
@@ -46,37 +57,42 @@ export class AuthController {
     @Body() signInDto: SignInDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    // return await this.authService.signIn(signInDto);
-    const { accessToken, refreshToken, expiresToken } =
+    const { accessToken, refreshToken, expiresToken, expiresRefreshToken } =
       await this.authService.signIn(signInDto);
 
-    // for testing only. you can set refresh token in frontend
+    /* for testing only. you can set refresh token cookie in frontend
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: true,
-      expires: new Date(expiresToken),
+      expires: new Date(expiresRefreshToken),
     });
+    end of set refresh token cookie */
 
     return { accessToken, refreshToken, expiresToken };
   }
 
+  @RefreshTokenSwaggerDecorator()
   @UseGuards(JwtRefreshTokenGuard)
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(@Req() req: Request): Promise<{ accessToken: string }> {
+  async refreshToken(
+    @Req() req: Request,
+    @GetAuthorization() authorization: string,
+  ): Promise<{ accessToken: string }> {
     return this.authService.refreshAccessToken({
       refreshToken: req.cookies.refreshToken ?? '',
+      accessToken: authorization,
     });
   }
 
+  @SignOutSwaggerDecorator()
   @UseGuards(JwtAuthGuard)
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)
   async signOut(
-    @Headers('authorization') authorization: string,
+    @GetAuthorization() authorization: string,
   ): Promise<{ message: string }> {
-    const token = authorization.split(' ')[1];
-    await this.authService.signOut(token);
+    await this.authService.signOut(authorization);
     return { message: 'logout successfully' };
   }
 }

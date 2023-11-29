@@ -15,7 +15,7 @@ export class AuthRepository extends Repository<User> {
 
     if (user && (await user.validatePassword(password))) {
       return {
-        sub: user.id,
+        id: user.id,
         username: user.username,
         auth_origin: 'user_credentials',
       };
