@@ -18,16 +18,16 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskFilterDto } from './dto/get-task-filter.dto';
 import { Task } from './entities/task.entity';
-import { TaskStatus } from '../utils/enums/task-status.enum';
 import { User } from '../users/entities/user.entity';
 import { UuidValidationPipe } from '../utils/pipes/uuid.validation.pipe';
-import { TaskStatusValidationPipe } from '../utils/pipes/task-status.validation.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetCurrentUser } from '../utils/decorators/params/get-current-user.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { GetTasksSwaggerDecorator } from './decorators/functions/swagger/get-tasks.decorator';
 import { GetTaskIdSwaggerDecorator } from './decorators/functions/swagger/get-task-id.decorator';
 import { CreateTaskSwaggerDecorator } from './decorators/functions/swagger/create-task.decorator';
+import { UpdateTaskSwaggerDecorator } from './decorators/functions/swagger/update-task.decorator';
+import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
 
 @ApiTags('Task')
 @Controller({
@@ -77,13 +77,14 @@ export class TasksController {
     return this.tasksService.createTask(createTaskDto, user);
   }
 
+  @UpdateTaskSwaggerDecorator()
   @Patch('/:id/status')
   updateTaskStatusById(
     @Param('id', UuidValidationPipe) id: string,
-    @Body('status', TaskStatusValidationPipe) status: TaskStatus,
+    @Body() body: UpdateTaskStatusDto,
     @GetCurrentUser() user: User,
   ): Promise<Task> {
-    return this.tasksService.updateTaskStatusById(id, status, user);
+    return this.tasksService.updateTaskStatusById(id, body.status, user);
   }
 
   @Delete('/:id')
