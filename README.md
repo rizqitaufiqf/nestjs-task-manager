@@ -47,6 +47,13 @@ You can use this flag to authorize sensitive operations, such as changing your p
 you can prompt them to log in again for sensitive operations. I would say this is a must for most applications.
 ```
 
+### Generate Secret Key
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+# or
+node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
+```
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
