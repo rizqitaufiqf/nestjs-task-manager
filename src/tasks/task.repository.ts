@@ -45,7 +45,7 @@ export class TaskRepository extends Repository<Task> {
     task.user = user;
     await task.save();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { user: _, ...rest } = task;
+    const { user: _user, userId: _userId, ...rest } = task;
     return rest;
   }
 }
