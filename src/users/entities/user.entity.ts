@@ -4,12 +4,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
+import { Task } from '../../tasks/entities/task.entity';
 
 @Entity('user')
 @Unique(['username'])
@@ -30,6 +32,9 @@ export class User extends BaseEntity {
   @Column()
   @Exclude({ toPlainOnly: true })
   salt: string;
+
+  @OneToMany(() => Task, (task) => task.user, { eager: true })
+  tasks: Task[];
 
   @CreateDateColumn()
   @Exclude({ toPlainOnly: true })
