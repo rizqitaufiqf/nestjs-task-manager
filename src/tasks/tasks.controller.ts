@@ -26,6 +26,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetCurrentUser } from '../utils/decorators/params/get-current-user.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { GetTasksSwaggerDecorator } from './decorators/functions/swagger/get-tasks.decorator';
+import { GetTaskIdSwaggerDecorator } from './decorators/functions/swagger/get-task-id.decorator';
 
 @ApiTags('Task')
 @Controller({
@@ -53,6 +54,7 @@ export class TasksController {
     return this.tasksService.getTasks(filterDto, user);
   }
 
+  @GetTaskIdSwaggerDecorator()
   @Get('/:id')
   getTaskById(
     @Param('id', UuidValidationPipe) id: string,
