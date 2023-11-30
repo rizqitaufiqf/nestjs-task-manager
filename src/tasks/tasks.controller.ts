@@ -24,7 +24,10 @@ import { UuidValidationPipe } from '../utils/pipes/uuid.validation.pipe';
 import { TaskStatusValidationPipe } from '../utils/pipes/task-status.validation.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetCurrentUser } from '../utils/decorators/params/get-current-user.decorator';
+import { ApiTags } from '@nestjs/swagger';
+import { GetTasksSwaggerDecorator } from './decorators/functions/swagger/get-tasks.decorator';
 
+@ApiTags('Task')
 @Controller({
   path: 'tasks',
   version: '1',
@@ -35,6 +38,7 @@ export class TasksController {
 
   constructor(private tasksService: TasksService) {}
 
+  @GetTasksSwaggerDecorator()
   @Get()
   @UsePipes(ValidationPipe)
   getTasks(
