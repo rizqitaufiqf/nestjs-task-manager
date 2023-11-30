@@ -27,6 +27,7 @@ import { GetCurrentUser } from '../utils/decorators/params/get-current-user.deco
 import { ApiTags } from '@nestjs/swagger';
 import { GetTasksSwaggerDecorator } from './decorators/functions/swagger/get-tasks.decorator';
 import { GetTaskIdSwaggerDecorator } from './decorators/functions/swagger/get-task-id.decorator';
+import { CreateTaskSwaggerDecorator } from './decorators/functions/swagger/create-task.decorator';
 
 @ApiTags('Task')
 @Controller({
@@ -63,6 +64,7 @@ export class TasksController {
     return this.tasksService.getTaskById(id, user);
   }
 
+  @CreateTaskSwaggerDecorator()
   @Post()
   @UsePipes(ValidationPipe)
   createTask(
