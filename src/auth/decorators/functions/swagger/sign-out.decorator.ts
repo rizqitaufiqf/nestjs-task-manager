@@ -12,6 +12,10 @@ export function SignOutSwaggerDecorator() {
     ApiBearerAuth(),
     ApiOkResponse({
       schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+        },
         example: {
           message: 'logout successfully',
         },
@@ -19,8 +23,13 @@ export function SignOutSwaggerDecorator() {
     }),
     ApiUnauthorizedResponse({
       schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          statusCode: { type: 'number' },
+        },
         example: {
-          error: 'Unauthorized',
+          message: 'Unauthorized',
           statusCode: 401,
         },
       },

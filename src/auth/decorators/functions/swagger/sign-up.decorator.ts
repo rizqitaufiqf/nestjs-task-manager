@@ -7,18 +7,27 @@ export function SignUpSwaggerDecorator() {
     BaseSwaggerDecorator('User Sign Up'),
     ApiCreatedResponse({
       schema: {
+        type: 'object',
+        properties: {
+          username: { type: 'string' },
+          email: { oneOf: [{ type: 'string' }, { type: 'null' }] },
+          id: { type: 'string', format: 'uuid' },
+        },
         example: {
           username: 'username',
           email: 'username@mail.com',
-          deletedAt: null,
           id: '163c431c-487f-45a5-8720-ddba02850bbb',
-          createdAt: '2023-11-15T22:10:34.484Z',
-          updatedAt: '2023-11-15T22:10:34.484Z',
         },
       },
     }),
     ApiBadRequestResponse({
       schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'array', items: { type: 'string' } },
+          error: { type: 'string' },
+          statusCode: { type: 'number' },
+        },
         example: {
           message: [
             'confirmPassword must match password exactly',
