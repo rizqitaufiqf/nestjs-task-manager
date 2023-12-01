@@ -22,16 +22,6 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-### 3. Tambahkan Swagger doc conflic di auth register/sign-up (contoh output)
-```json
-{
-  "message": "Username already exists",
-  "error": "Conflict",
-  "statusCode": 409
-}
-```
-### 4. check sendiri yang lain ada yang terlewat atau tidak
-
 ## Source
 ```
 https://medium.com/@0xAggelos/building-a-secure-authentication-system-with-nestjs-jwt-and-postgresql-e1b4833b6b4e
