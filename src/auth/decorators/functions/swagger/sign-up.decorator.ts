@@ -1,5 +1,9 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+} from '@nestjs/swagger';
 import { BaseSwaggerDecorator } from '../../../../utils/decorators/functions/swagger/base.decorator';
 
 export function SignUpSwaggerDecorator() {
@@ -17,6 +21,21 @@ export function SignUpSwaggerDecorator() {
           username: 'username',
           email: 'username@mail.com',
           id: '163c431c-487f-45a5-8720-ddba02850bbb',
+        },
+      },
+    }),
+    ApiConflictResponse({
+      schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          error: { type: 'string' },
+          statusCode: { type: 'number' },
+        },
+        example: {
+          message: 'Username already exists',
+          error: 'Conflict',
+          statusCode: 409,
         },
       },
     }),
