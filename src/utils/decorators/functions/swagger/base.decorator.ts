@@ -5,6 +5,11 @@ export function BaseSwaggerDecorator(apiOperation: string) {
   return applyDecorators(
     ApiInternalServerErrorResponse({
       schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          statusCode: { type: 'number' },
+        },
         example: {
           error: 'Internal Server Error',
           statusCode: 500,

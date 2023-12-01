@@ -5,21 +5,16 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { TaskStatus } from '../../../../utils/enums/task-status.enum';
 
-export function MeSwaggerDecorator() {
+export function GetTasksSwaggerDecorator() {
   return applyDecorators(
-    BaseSwaggerDecorator('Get User Data'),
+    BaseSwaggerDecorator('Get All Tasks'),
     ApiBearerAuth(),
     ApiOkResponse({
       schema: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' },
-          username: { type: 'string' },
-          email: {
-            oneOf: [{ type: 'string', format: 'email' }, { type: 'null' }],
-          },
-          tasks: {
+        oneOf: [
+          {
             type: 'array',
             items: {
               type: 'object',
@@ -27,27 +22,29 @@ export function MeSwaggerDecorator() {
                 id: { type: 'string', format: 'uuid' },
                 title: { type: 'string' },
                 description: { type: 'string' },
-                status: {
-                  type: 'string',
-                  enum: ['OPEN', 'IN_PROGRESS', 'DONE'],
-                },
+                status: { type: 'string', enum: Object.values(TaskStatus) },
               },
             },
+            example: [
+              {
+                id: '798c3aa1-5910-4daa-8bc3-6392a37d40d5',
+                title: 'Go to Market',
+                description: 'Buy some vegetables and milk',
+                status: 'Done',
+              },
+              {
+                id: '6d09a50e-1a3b-4bdc-b403-f45dee72d742',
+                title: 'Do Homework',
+                description: 'Complete your Math Homework',
+                status: 'OPEN',
+              },
+            ],
           },
-        },
-        example: {
-          id: 'dc4f688d-6c65-4aa3-a1aa-4ea80c59b199',
-          username: 'user_name',
-          email: null,
-          tasks: [
-            {
-              id: '09818032-c0d8-4466-9c5c-c58788e90dec',
-              title: 'Go to Market',
-              description: 'Buy some vegetables and milk',
-              status: 'DONE',
-            },
-          ],
-        },
+          {
+            type: 'array',
+            example: [],
+          },
+        ],
       },
     }),
     ApiUnauthorizedResponse({

@@ -1,5 +1,9 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+} from '@nestjs/swagger';
 import { BaseSwaggerDecorator } from '../../../../utils/decorators/functions/swagger/base.decorator';
 
 export function SignUpSwaggerDecorator() {
@@ -7,18 +11,42 @@ export function SignUpSwaggerDecorator() {
     BaseSwaggerDecorator('User Sign Up'),
     ApiCreatedResponse({
       schema: {
+        type: 'object',
+        properties: {
+          username: { type: 'string' },
+          email: { oneOf: [{ type: 'string' }, { type: 'null' }] },
+          id: { type: 'string', format: 'uuid' },
+        },
         example: {
           username: 'username',
           email: 'username@mail.com',
-          deletedAt: null,
           id: '163c431c-487f-45a5-8720-ddba02850bbb',
-          createdAt: '2023-11-15T22:10:34.484Z',
-          updatedAt: '2023-11-15T22:10:34.484Z',
+        },
+      },
+    }),
+    ApiConflictResponse({
+      schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          error: { type: 'string' },
+          statusCode: { type: 'number' },
+        },
+        example: {
+          message: 'Username already exists',
+          error: 'Conflict',
+          statusCode: 409,
         },
       },
     }),
     ApiBadRequestResponse({
       schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'array', items: { type: 'string' } },
+          error: { type: 'string' },
+          statusCode: { type: 'number' },
+        },
         example: {
           message: [
             'confirmPassword must match password exactly',

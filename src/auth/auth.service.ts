@@ -82,14 +82,14 @@ export class AuthService {
 
   async refreshAccessToken(
     refreshTokenDto: RefreshTokenDto,
-  ): Promise<{ accessToken: string; tokenExpires: number }> {
+  ): Promise<{ accessToken: string; expiresToken: number }> {
     const tokenExpiresIn: string = this.configService.getOrThrow(
       'auth.expires',
       {
         infer: true,
       },
     );
-    const tokenExpires = Date.now() + ms(tokenExpiresIn);
+    const expiresToken = Date.now() + ms(tokenExpiresIn);
 
     try {
       const { refreshToken, accessToken: oldAccessToken } = refreshTokenDto;
@@ -118,7 +118,7 @@ export class AuthService {
         }),
       });
 
-      return { accessToken, tokenExpires };
+      return { accessToken, expiresToken };
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
