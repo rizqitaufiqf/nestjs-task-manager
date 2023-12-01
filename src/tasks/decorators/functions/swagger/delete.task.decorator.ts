@@ -8,27 +8,20 @@ import {
   ApiParam,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { TaskStatus } from '../../../../utils/enums/task-status.enum';
 
-export function UpdateTaskSwaggerDecorator() {
+export function DeleteTaskSwaggerDecorator() {
   return applyDecorators(
-    BaseSwaggerDecorator('Update task status'),
+    BaseSwaggerDecorator('Delete task'),
     ApiBearerAuth(),
     ApiParam({ name: 'id', type: 'uuid' }),
     ApiOkResponse({
       schema: {
         type: 'object',
         properties: {
-          id: { type: 'string', format: 'uuid' },
-          title: { type: 'string' },
-          description: { type: 'string' },
-          status: { type: 'string', enum: Object.values(TaskStatus) },
+          message: { type: 'string' },
         },
         example: {
-          id: '09818032-c0d8-4466-9c5c-c58788e90dec',
-          title: 'Go to Market',
-          description: 'Buy some vegetables and milk',
-          status: 'DONE',
+          message: 'Task deleted successfully',
         },
       },
     }),
@@ -36,17 +29,12 @@ export function UpdateTaskSwaggerDecorator() {
       schema: {
         type: 'object',
         properties: {
-          message: {
-            type: 'array',
-            items: { type: 'string' },
-          },
+          message: { type: 'string' },
           error: { type: 'string' },
           statusCode: { type: 'number' },
         },
         example: {
-          message: [
-            'status must be one of the following values: OPEN, IN_PROGRESS, DONE',
-          ],
+          message: '"09818032-c0d8-4466-9c5c-c58788e90deca" is an invalid id',
           error: 'Bad Request',
           statusCode: 400,
         },

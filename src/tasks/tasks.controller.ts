@@ -28,6 +28,7 @@ import { GetTaskIdSwaggerDecorator } from './decorators/functions/swagger/get-ta
 import { CreateTaskSwaggerDecorator } from './decorators/functions/swagger/create-task.decorator';
 import { UpdateTaskSwaggerDecorator } from './decorators/functions/swagger/update-task.decorator';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
+import { DeleteTaskSwaggerDecorator } from './decorators/functions/swagger/delete.task.decorator';
 
 @ApiTags('Task')
 @Controller({
@@ -87,12 +88,14 @@ export class TasksController {
     return this.tasksService.updateTaskStatusById(id, body.status, user);
   }
 
+  @DeleteTaskSwaggerDecorator()
   @Delete('/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   async deleteTaskById(
     @Param('id', UuidValidationPipe) id: string,
     @GetCurrentUser() user: User,
-  ): Promise<void> {
-    return this.tasksService.deleteTaskById(id, user);
+  ): Promise<{ message: string }> {
+    await this.tasksService.deleteTaskById(id, user);
+    return { message: 'Task deleted successfully' };
   }
 }
