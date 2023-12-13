@@ -3,6 +3,7 @@ NODE_ENV=development # production, test
 APP_PORT=8000
 APP_NAME="Nest Guardian"
 API_PREFIX=api
+DOMAIN=example.com
 
 # PostgreSQL Config
 DATABASE_TYPE=postgres
