@@ -1,10 +1,11 @@
-# Execute (bcs error load custom env file)-> docker compose --env-file .env.db up -d
+# Execute (bcs error load custom env file)-> docker compose --env-file .env.db --env-file .env up -d
 
 version: '3.9'
 
 services:
   db:
     image: postgres:latest
+    container_name: NestJS-Task-Manager-db
     ports:
       - "5432:5432"
     environment:
@@ -13,14 +14,43 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - nest-guard-postgres-data:/var/lib/postgresql/data
-    env_file:
-      - .env.db
     networks:
-      - nest-guard
+      - backend
+    env_file:
+      - ./.env.db
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: NestJS-Task-Manager-app
+    environment:
+      - PORT=${APP_PORT}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src
+    # enable this to use traefik
+#    labels:
+#      - traefik.enable=true
+#      - traefik.http.routers.taskmanager.rule=Host(`taskmanager.${DOMAIN}`) || Host(`www.taskmanager.${DOMAIN}`)
+#      - traefik.http.services.taskmanager.loadbalancer.server.port=13000
+#      - traefik.http.routers.taskmanager.middlewares=redirect-web-to-websecure@internal
+#      - traefik.http.routers.taskmanager.middlewares=ratelimit
+#      - traefik.http.middlewares.ratelimit.rateLimit.average=20
+#      - traefik.http.middlewares.ratelimit.rateLimit.period=2m
+#      - traefik.http.middlewares.ratelimit.rateLimit.burst=20
+    networks:
+      - backend
+    env_file:
+      - ./.env
 
   pgadmin:
     user: root
     image: dpage/pgadmin4
+    container_name: NestJS-Task-Manager-pgadmin
     restart: always
     ports:
       - "8888:80"
@@ -29,33 +59,35 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - nest-guard-postgres-data:/var/lib/pgadmin
-    env_file:
-      - .env.db
     depends_on:
       - db
     networks:
-      - nest-guard
+      - backend
+    env_file:
+      - ./.env.db
 
   cache:
     image: redis:latest
+    container_name: NestJS-Task-Manager-redis
     env_file:
       - .env.db
     ports:
       - "6379:6379"
     networks:
-      - nest-guard
+      - backend
 
   redisinsight:
     image: redislabs/redisinsight
+    container_name: NestJS-Task-Manager-redisinsight
     ports:
       - "8001:8001"
     depends_on:
       - cache
     networks:
-      - nest-guard
+      - backend
 
 volumes:
   nest-guard-postgres-data:
 
 networks:
-  nest-guard:
+  backend:
