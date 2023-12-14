@@ -35,7 +35,7 @@ services:
     # enable this to use traefik
 #    labels:
 #      - traefik.enable=true
-#      - traefik.http.routers.taskmanager.rule=Host(`taskmanager.${DOMAIN}`) || Host(`www.taskmanager.${DOMAIN}`)
+#      - traefik.http.routers.taskmanager.rule=(Host(`taskmanager.${DOMAIN}`) && Pathprefix(`/docs`)) || (Host(`taskmanager.${DOMAIN}`) && Pathprefix(`/api`))
 #      - traefik.http.services.taskmanager.loadbalancer.server.port=13000
 #      - traefik.http.routers.taskmanager.middlewares=redirect-web-to-websecure@internal
 #      - traefik.http.routers.taskmanager.middlewares=ratelimit
@@ -51,7 +51,6 @@ services:
     user: root
     image: dpage/pgadmin4
     container_name: NestJS-Task-Manager-pgadmin
-    restart: always
     ports:
       - "8888:80"
     environment:
