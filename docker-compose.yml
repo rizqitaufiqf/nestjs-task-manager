@@ -24,8 +24,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: NestJS-Task-Manager-app
-    environment:
-      - PORT=${APP_PORT}
     ports:
       - '3000:3000'
     depends_on:
@@ -35,13 +33,16 @@ services:
     # enable this to use traefik
 #    labels:
 #      - traefik.enable=true
-#      - traefik.http.routers.taskmanager.rule=Host(`taskmanager.${DOMAIN}`) || Host(`www.taskmanager.${DOMAIN}`)
+#      # Router API
+#      - traefik.http.routers.taskmanager-api.rule=Host(`taskmanager.${DOMAIN}`) && Pathprefix(`/api`)
+#      - traefik.http.routers.taskmanager-api.middlewares=redirect-web-to-websecure@internal
+#      - traefik.http.routers.taskmanager-api.middlewares=ratelimit-be@file
+#      # Router Swagger Docs
+#      - traefik.http.routers.taskmanager-docs.rule=Host(`taskmanager.${DOMAIN}`) && Pathprefix(`/docs`)
+#      - traefik.http.routers.taskmanager-docs.middlewares=redirect-web-to-websecure@internal
+#      - traefik.http.routers.taskmanager-docs.middlewares=ratelimit-fe@file
+#      # Service taskmanager
 #      - traefik.http.services.taskmanager.loadbalancer.server.port=13000
-#      - traefik.http.routers.taskmanager.middlewares=redirect-web-to-websecure@internal
-#      - traefik.http.routers.taskmanager.middlewares=ratelimit
-#      - traefik.http.middlewares.ratelimit.rateLimit.average=20
-#      - traefik.http.middlewares.ratelimit.rateLimit.period=2m
-#      - traefik.http.middlewares.ratelimit.rateLimit.burst=20
     networks:
       - backend
     env_file:
@@ -51,7 +52,6 @@ services:
     user: root
     image: dpage/pgadmin4
     container_name: NestJS-Task-Manager-pgadmin
-    restart: always
     ports:
       - "8888:80"
     environment:
