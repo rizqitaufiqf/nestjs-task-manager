@@ -31,16 +31,16 @@ export default registerAs<RatelimitConfigType>(
     validateConfig(env, EnvironmentVariablesValidator);
 
     return {
-      ratelimit_short_ttl: env.RATELIMIT_SHORT_TTL || '2s',
-      ratelimit_short_limit: env.RATELIMIT_SHORT_LIMIT
+      short_ttl: env.RATELIMIT_SHORT_TTL || '2s',
+      short_limit: env.RATELIMIT_SHORT_LIMIT
         ? parseInt(env.RATELIMIT_SHORT_LIMIT)
         : 5,
-      ratelimit_medium_ttl: env.RATELIMIT_MEDIUM_TTL || '20s',
-      ratelimit_medium_limit: env.RATELIMIT_MEDIUM_LIMIT
+      medium_ttl: env.RATELIMIT_MEDIUM_TTL || '20s',
+      medium_limit: env.RATELIMIT_MEDIUM_LIMIT
         ? parseInt(env.RATELIMIT_MEDIUM_LIMIT)
         : 30,
-      ratelimit_long_ttl: env.RATELIMIT_LONG_TTL || '80s',
-      ratelimit_long_limit: env.RATELIMIT_LONG_LIMIT
+      long_ttl: env.RATELIMIT_LONG_TTL || '80s',
+      long_limit: env.RATELIMIT_LONG_LIMIT
         ? parseInt(env.RATELIMIT_LONG_LIMIT)
         : 200,
     };
