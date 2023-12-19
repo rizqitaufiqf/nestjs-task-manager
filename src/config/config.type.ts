@@ -32,6 +32,8 @@ export type DatabaseConfigType = {
 export type RedisConfigType = {
   host: string;
   port: number;
+  username: string;
+  password: string;
 };
 
 export type RatelimitConfigType = {
