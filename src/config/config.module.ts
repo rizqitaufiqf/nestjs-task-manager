@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import {
+  ConfigModule as NestConfigModule,
+  ConfigService,
+} from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import appConfig from './app.config';
 import databaseConfig from './database.config';
@@ -9,13 +12,22 @@ import authConfig from './auth.config';
 import redisConfig from './redis.config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import rateLimitConfig from './rate-limit.config';
+import { AllConfigType } from './config.type';
+import ms from 'ms';
 
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
-      load: [appConfig, authConfig, databaseConfig, redisConfig],
+      load: [
+        appConfig,
+        authConfig,
+        databaseConfig,
+        redisConfig,
+        rateLimitConfig,
+      ],
     }),
     TypeOrmModule.forRootAsync({
       useClass: TypeormConfigService,
@@ -25,23 +37,56 @@ import { APP_GUARD } from '@nestjs/core';
         return new DataSource(options).initialize();
       },
     }),
-    ThrottlerModule.forRoot([
-      {
-        name: 'short',
-        ttl: 1000,
-        limit: 3,
-      },
-      {
-        name: 'medium',
-        ttl: 10000,
-        limit: 20,
-      },
-      {
-        name: 'long',
-        ttl: 60000,
-        limit: 100,
-      },
-    ]),
+    ThrottlerModule.forRootAsync({
+      imports: [NestConfigModule],
+      useFactory: (configService: ConfigService<AllConfigType>) => ({
+        throttlers: [
+          {
+            name: 'short',
+            ttl: parseInt(
+              ms(
+                configService.getOrThrow('ratelimit.ratelimit_short_ttl', {
+                  infer: true,
+                }),
+              ),
+            ),
+            limit: configService.getOrThrow('ratelimit.ratelimit_short_limit', {
+              infer: true,
+            }),
+          },
+          {
+            name: 'medium',
+            ttl: parseInt(
+              ms(
+                configService.getOrThrow('ratelimit.ratelimit_medium_ttl', {
+                  infer: true,
+                }),
+              ),
+            ),
+            limit: configService.getOrThrow(
+              'ratelimit.ratelimit_medium_limit',
+              {
+                infer: true,
+              },
+            ),
+          },
+          {
+            name: 'long',
+            ttl: parseInt(
+              ms(
+                configService.getOrThrow('ratelimit.ratelimit_long_ttl', {
+                  infer: true,
+                }),
+              ),
+            ),
+            limit: configService.getOrThrow('ratelimit.ratelimit_long_limit', {
+              infer: true,
+            }),
+          },
+        ],
+      }),
+      inject: [ConfigService],
+    }),
   ],
   providers: [
     {

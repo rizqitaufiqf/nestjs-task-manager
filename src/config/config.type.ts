@@ -34,9 +34,19 @@ export type RedisConfigType = {
   port: number;
 };
 
+export type RatelimitConfigType = {
+  ratelimit_short_ttl: string;
+  ratelimit_short_limit: number;
+  ratelimit_medium_ttl: string;
+  ratelimit_medium_limit: number;
+  ratelimit_long_ttl: string;
+  ratelimit_long_limit: number;
+};
+
 export type AllConfigType = {
   app: AppConfigType;
   auth: JwtAuthConfigType;
   database: DatabaseConfigType;
   redis: RedisConfigType;
+  ratelimit: RatelimitConfigType;
 };
