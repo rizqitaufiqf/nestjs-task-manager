@@ -24,6 +24,12 @@ export class JwtRefreshTokenStorage
     this.redisClient = new Redis({
       host: this.configService.getOrThrow('redis.host', { infer: true }),
       port: this.configService.getOrThrow('redis.port', { infer: true }),
+      username: this.configService.getOrThrow('redis.username', {
+        infer: true,
+      }),
+      password: this.configService.getOrThrow('redis.password', {
+        infer: true,
+      }),
     });
   }
 

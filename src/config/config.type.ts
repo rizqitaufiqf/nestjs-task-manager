@@ -32,6 +32,17 @@ export type DatabaseConfigType = {
 export type RedisConfigType = {
   host: string;
   port: number;
+  username: string;
+  password: string;
+};
+
+export type RatelimitConfigType = {
+  short_ttl: string;
+  short_limit: number;
+  medium_ttl: string;
+  medium_limit: number;
+  long_ttl: string;
+  long_limit: number;
 };
 
 export type AllConfigType = {
@@ -39,4 +50,5 @@ export type AllConfigType = {
   auth: JwtAuthConfigType;
   database: DatabaseConfigType;
   redis: RedisConfigType;
+  ratelimit: RatelimitConfigType;
 };
