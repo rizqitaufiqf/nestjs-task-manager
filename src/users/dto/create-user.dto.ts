@@ -14,12 +14,12 @@ export class CreateUserDto {
   @ApiProperty({
     example: 'user_name',
     description:
-      'only letters(lowercase), numbers, and underscores (_) in your username',
+      'only letters(lowercase), numbers, and underscores (_) are allowed in your username',
   })
   @IsString()
   @MinLength(4)
   @MaxLength(20)
-  @Matches(/^[a-zA-Z0-9_]+$/, {
+  @Matches(/^[a-z0-9_]+$/, {
     message:
       'Use only letters(lowercase), numbers, and underscores (_) in your username',
   })
