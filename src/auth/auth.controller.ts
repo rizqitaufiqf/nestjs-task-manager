@@ -55,20 +55,23 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async signIn(
     @Body() signInDto: SignInDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Res({ passthrough: true }) response: Response,
   ) {
+    /* for testing only. you can set refresh token cookie in frontend
     const { accessToken, refreshToken, expiresToken, expiresRefreshToken } =
       await this.authService.signIn(signInDto);
 
-    /* for testing only. you can set refresh token cookie in frontend
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: true,
       expires: new Date(expiresRefreshToken),
     });
+
+    return { accessToken, refreshToken, expiresToken, expiresRefreshToken };
     end of set refresh token cookie */
 
-    return { accessToken, refreshToken, expiresToken };
+    return await this.authService.signIn(signInDto);
   }
 
   @RefreshTokenSwaggerDecorator()
