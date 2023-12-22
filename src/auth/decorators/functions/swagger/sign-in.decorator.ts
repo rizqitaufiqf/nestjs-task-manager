@@ -22,6 +22,12 @@ export function SignInSwaggerDecorator() {
             description:
               'Unix timestamp representing the expiration time of the token',
           },
+          expiresRefreshToken: {
+            type: 'integer',
+            format: 'int64', // Use 'int64' for Unix timestamp
+            description:
+              'Unix timestamp representing the expiration time of the refresh token',
+          },
         },
         example: {
           accessToken:
@@ -29,6 +35,7 @@ export function SignInSwaggerDecorator() {
           refreshToken:
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI5MjZmMzg2LWJiY2EtNGQzNy04MTlkLWE3NDJlMzZlODQ5ZiIsInVzZXJuYW1lIjoicmVyZSIsImlhdCI6MTcwMDEwNzM5MywiZXhwIjoxNzAwMTA3OTkzfQ.GSoM8JKam3gYF7kNCcTOGAlUUQkiosa60K8byuIjfJA',
           expiresToken: 1700107693100,
+          expiresRefreshToken: 1703215409986,
         },
       },
     }),
