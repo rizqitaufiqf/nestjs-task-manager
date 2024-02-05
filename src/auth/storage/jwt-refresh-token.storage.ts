@@ -30,6 +30,7 @@ export class JwtRefreshTokenStorage
       password: this.configService.getOrThrow('redis.password', {
         infer: true,
       }),
+      connectTimeout: 10000,
     });
   }
 

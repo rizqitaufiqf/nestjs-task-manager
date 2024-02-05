@@ -1,4 +1,4 @@
-import { IsInt, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { registerAs } from '@nestjs/config';
 import { RedisConfigType } from './config.type';
 import * as process from 'process';
@@ -27,7 +27,7 @@ export default registerAs('redis', (): RedisConfigType => {
   return {
     host: env.REDIS_HOST,
     port: env.REDIS_PORT ? parseInt(env.REDIS_PORT, 10) : 6379,
-    username: env.REDIS_USERNAME,
-    password: env.REDIS_PASSWORD,
+    username: env.REDIS_USERNAME || 'default',
+    password: env.REDIS_PASSWORD || '',
   };
 });
