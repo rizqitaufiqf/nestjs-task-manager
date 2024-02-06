@@ -14,21 +14,26 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+
 import { TasksService } from './tasks.service';
+
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskFilterDto } from './dto/get-task-filter.dto';
-import { Task } from './entities/task.entity';
-import { User } from '../users/entities/user.entity';
+import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
+
 import { UuidValidationPipe } from '../utils/pipes/uuid.validation.pipe';
+
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
 import { GetCurrentUser } from '../utils/decorators/params/get-current-user.decorator';
+
 import { ApiTags } from '@nestjs/swagger';
 import { GetTasksSwaggerDecorator } from './decorators/functions/swagger/get-tasks.decorator';
 import { GetTaskIdSwaggerDecorator } from './decorators/functions/swagger/get-task-id.decorator';
 import { CreateTaskSwaggerDecorator } from './decorators/functions/swagger/create-task.decorator';
 import { UpdateTaskSwaggerDecorator } from './decorators/functions/swagger/update-task.decorator';
-import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
 import { DeleteTaskSwaggerDecorator } from './decorators/functions/swagger/delete.task.decorator';
+import { Task, User } from '@prisma/client';
 
 @ApiTags('Task')
 @Controller({

@@ -1,22 +1,27 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { AuthRepository } from './auth.repository';
-import { SignInDto } from './dto/sign-in.dto';
-import { JwtService } from '@nestjs/jwt';
-import { JwtRefreshTokenStorage } from './storage/jwt-refresh-token.storage';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { IJwtPayload } from '../utils/interfaces/jwt-payload.interface';
-import { ConfigService } from '@nestjs/config';
-import { AllConfigType } from '../config/config.type';
 import ms from 'ms';
+import * as bcrypt from 'bcrypt';
+
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../database/prisma.service';
+import { JwtRefreshTokenStorage } from './storage/jwt-refresh-token.storage';
+
+import { SignInDto } from './dto/sign-in.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+
+import { IJwtPayload } from '../utils/interfaces/jwt-payload.interface';
+import { AllConfigType } from '../config/config.type';
+
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(AuthRepository) private authRepository: AuthRepository,
     private jwtService: JwtService,
     private refreshTokenStorage: JwtRefreshTokenStorage,
     private configService: ConfigService<AllConfigType>,
+    private prisma: PrismaService,
   ) {}
 
   async signIn(signInDto: SignInDto): Promise<{
@@ -41,7 +46,7 @@ export class AuthService {
     );
     const refreshTokenExpires = Date.now() + ms(refreshTokenExpiresIn);
 
-    const user = await this.authRepository.validateUser(signInDto);
+    const user = await this.validateUser(signInDto);
     if (!user) throw new UnauthorizedException('Invalid username or password');
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -137,5 +142,31 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid access token');
     }
+  }
+
+  private async validateUser({
+    username,
+    password,
+  }: SignInDto): Promise<IJwtPayload> {
+    const user: User = await this.prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (user && (await this.validatePassword(user.password, password))) {
+      return {
+        id: user.id,
+        username: user.username,
+        auth_origin: 'user_credentials',
+      };
+    }
+
+    return null;
+  }
+
+  private async validatePassword(
+    originPassword: string,
+    password: string,
+  ): Promise<boolean> {
+    return await bcrypt.compare(password, originPassword);
   }
 }

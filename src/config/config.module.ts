@@ -3,11 +3,8 @@ import {
   ConfigModule as NestConfigModule,
   ConfigService,
 } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import appConfig from './app.config';
 import databaseConfig from './database.config';
-import { TypeormConfigService } from '../database/typeorm-config.service';
-import { DataSource, DataSourceOptions } from 'typeorm';
 import authConfig from './auth.config';
 import redisConfig from './redis.config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -15,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import rateLimitConfig from './rate-limit.config';
 import { AllConfigType } from './config.type';
 import ms from 'ms';
+import { PrismaService } from '../database/prisma.service';
 
 @Module({
   imports: [
@@ -28,14 +26,6 @@ import ms from 'ms';
         redisConfig,
         rateLimitConfig,
       ],
-    }),
-    TypeOrmModule.forRootAsync({
-      useClass: TypeormConfigService,
-      dataSourceFactory: async (
-        options: DataSourceOptions,
-      ): Promise<DataSource> => {
-        return new DataSource(options).initialize();
-      },
     }),
     ThrottlerModule.forRootAsync({
       imports: [NestConfigModule],
@@ -90,7 +80,8 @@ import ms from 'ms';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    PrismaService,
   ],
-  exports: [NestConfigModule, TypeOrmModule, ThrottlerModule],
+  exports: [NestConfigModule, PrismaService, ThrottlerModule],
 })
 export class ConfigModule {}

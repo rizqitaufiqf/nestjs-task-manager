@@ -10,7 +10,7 @@ import { GetCurrentUser } from '../utils/decorators/params/get-current-user.deco
 import { UsersService } from './users.service';
 import { MeSwaggerDecorator } from './decorators/functions/swagger/me.decorator';
 import { ApiTags } from '@nestjs/swagger';
-import { User } from './entities/user.entity';
+import { User } from '@prisma/client';
 
 @ApiTags('User')
 @Controller({
@@ -24,7 +24,9 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  async me(@GetCurrentUser() user: User): Promise<User> {
-    return user;
+  async me(@GetCurrentUser() user: User): Promise<Partial<User>> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, salt, deletedAt, ...rest } = user;
+    return rest;
   }
 }

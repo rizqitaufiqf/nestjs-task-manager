@@ -1,25 +1,34 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { TaskRepository } from './task.repository';
-import { Task } from './entities/task.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { TaskStatus } from '../utils/enums/task-status.enum';
 import { GetTaskFilterDto } from './dto/get-task-filter.dto';
-import { User } from '../users/entities/user.entity';
+import { Task, User } from '@prisma/client';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class TasksService {
-  constructor(
-    @InjectRepository(TaskRepository)
-    private taskRepository: TaskRepository,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async getTasks(filterDto: GetTaskFilterDto, user: User): Promise<Task[]> {
-    return this.taskRepository.getTasks(filterDto, user);
+  async getTasks(
+    { status, search }: GetTaskFilterDto,
+    user: User,
+  ): Promise<Task[]> {
+    return await this.prisma.task.findMany({
+      where: {
+        userId: user.id,
+        ...(status && { status }),
+        ...(search && {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+      },
+    });
   }
 
   async getTaskById(id: string, user: User): Promise<Task> {
-    const found: Task = await this.taskRepository.findOne({
+    const found: Task = await this.prisma.task.findUnique({
       where: { id, userId: user.id },
     });
     if (!found) {
@@ -29,10 +38,23 @@ export class TasksService {
   }
 
   async createTask(
-    createTaskDto: CreateTaskDto,
+    { title, description }: CreateTaskDto,
     user: User,
   ): Promise<Partial<Task>> {
-    return this.taskRepository.createTask(createTaskDto, user);
+    return await this.prisma.task.create({
+      data: {
+        title,
+        description,
+        status: TaskStatus.OPEN,
+        userId: user.id,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        status: true,
+      },
+    });
   }
 
   async updateTaskStatusById(
@@ -40,16 +62,23 @@ export class TasksService {
     status: TaskStatus,
     user: User,
   ): Promise<Task> {
-    const task = await this.getTaskById(id, user);
-    task.status = status;
-    await task.save();
-    return task;
+    await this.getTaskById(id, user);
+    return await this.prisma.task.update({
+      where: {
+        id: id,
+        userId: user.id,
+      },
+      data: {
+        status: status,
+      },
+    });
   }
 
   async deleteTaskById(id: string, user: User): Promise<void> {
-    const result = await this.taskRepository.delete({ id, userId: user.id });
-    if (result.affected === 0) {
-      throw new NotFoundException(`Task with id: ${id} not found`);
-    }
+    await this.getTaskById(id, user);
+
+    await this.prisma.task.delete({
+      where: { id, userId: user.id },
+    });
   }
 }
