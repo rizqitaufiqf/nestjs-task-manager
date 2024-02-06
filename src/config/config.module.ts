@@ -7,12 +7,14 @@ import appConfig from './app.config';
 import databaseConfig from './database.config';
 import authConfig from './auth.config';
 import redisConfig from './redis.config';
+
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import rateLimitConfig from './rate-limit.config';
 import { AllConfigType } from './config.type';
 import ms from 'ms';
-import { PrismaService } from '../database/prisma.service';
+import { PrismaModule } from '../database/prisma.module';
+import prismaConfig from './prisma.config';
 
 @Module({
   imports: [
@@ -25,8 +27,10 @@ import { PrismaService } from '../database/prisma.service';
         databaseConfig,
         redisConfig,
         rateLimitConfig,
+        prismaConfig,
       ],
     }),
+    PrismaModule,
     ThrottlerModule.forRootAsync({
       imports: [NestConfigModule],
       useFactory: (configService: ConfigService<AllConfigType>) => ({
@@ -80,8 +84,7 @@ import { PrismaService } from '../database/prisma.service';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
-    PrismaService,
   ],
-  exports: [NestConfigModule, PrismaService, ThrottlerModule],
+  exports: [NestConfigModule, PrismaModule, ThrottlerModule],
 })
 export class ConfigModule {}

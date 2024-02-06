@@ -45,10 +45,18 @@ export type RatelimitConfigType = {
   long_limit: number;
 };
 
+export type PrismaConfigType = {
+  prisma_event_query: boolean;
+  prisma_stdout_info: boolean;
+  prisma_stdout_warn: boolean;
+  prisma_stdout_error: boolean;
+};
+
 export type AllConfigType = {
   app: AppConfigType;
   auth: JwtAuthConfigType;
   database: DatabaseConfigType;
   redis: RedisConfigType;
   ratelimit: RatelimitConfigType;
+  prisma: PrismaConfigType;
 };
